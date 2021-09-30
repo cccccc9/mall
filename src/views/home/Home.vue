@@ -10,12 +10,10 @@
       <home-swiper :banners="banners"/>
       <recommend-view :recommends="recommends"/>
       <feature-view/>
-      <tab-control class="tab-control"
-                   :titles="['流行', '新款', '精选']"
+      <tab-control :titles="['流行', '新款', '精选']"
                    @tabClick="tabClick"/>
       <good-list :goods="showGoods"/>
     </scroll>
-    <div>呵呵呵呵</div>
     <back-top @click.native="backClick" v-show="isShowBackTop"/>
   </div>
 </template>
@@ -31,7 +29,8 @@
   import Scroll from 'components/common/scroll/Scroll'
   import BackTop from 'components/content/backTop/BackTop'
 
-  import { getHomeMultidata, getHomeGoods } from "network/home"
+  import {getHomeMultidata, getHomeGoods} from "network/home"
+  import {debounce} from 'common/utils/debounce.js'
 
   export default {
     name: "Home",
@@ -55,7 +54,9 @@
           'sell': {page: 0, list: []},
         },
         currentType: 'pop',
-        isShowBackTop: false
+        isShowBackTop: false,
+        topOffsetTop: 0,
+        saveY: 0
       }
     },
     computed: {
@@ -71,11 +72,22 @@
       this.getHomeGoods('pop')
       this.getHomeGoods('new')
       this.getHomeGoods('sell')
+
+    },
+    activated(){
+      this.$refs.scroll.scroll.scrollTo(0,this.saveY,0)
+      this.$refs.scroll.scroll.refresh()
+    },
+    deactivated(){
+      this.saveY = this.$refs.scroll.scroll.y
+    },
+    mounted(){
+      const refresh = debounce(this.$refs.scroll.refresh, 500)
+      this.$bus.$on('imageLoaded',() =>{
+        refresh()
+      })
     },
     methods: {
-      /**
-       * 事件监听相关的方法
-       */
       tabClick(index) {
         switch (index) {
           case 0:
@@ -95,12 +107,13 @@
       contentScroll(position) {
         this.isShowBackTop = (-position.y) > 1000
       },
-      loadMore() {
+      loadMore(){
         this.getHomeGoods(this.currentType)
+        // console.log(2)
       },
-      /**
-       * 网络请求相关的方法
-       */
+      swiperImg(){
+        console.log(this.$refs)
+      },
       getHomeMultidata() {
         getHomeMultidata().then(res => {
           // this.result = res;
@@ -113,8 +126,7 @@
         getHomeGoods(type, page).then(res => {
           this.goods[type].list.push(...res.data.list)
           this.goods[type].page += 1
-
-          this.$refs.scroll.finishPullUp()
+          this.$refs.scroll.scroll.finishPullUp()
         })
       }
     }
@@ -138,12 +150,12 @@
     top: 0;
     z-index: 9;
   }
-
+/* 
   .tab-control {
     position: sticky;
     top: 44px;
     z-index: 9;
-  }
+  } */
 
   .content {
     overflow: hidden;

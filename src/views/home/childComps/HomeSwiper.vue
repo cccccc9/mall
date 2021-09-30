@@ -24,6 +24,9 @@
     components: {
       Swiper,
       SwiperItem
+    },
+    methods:{
+      
     }
   }
 </script>
