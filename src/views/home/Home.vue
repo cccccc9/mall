@@ -30,7 +30,8 @@
   import BackTop from 'components/content/backTop/BackTop'
 
   import {getHomeMultidata, getHomeGoods} from "network/home"
-  import {debounce} from 'common/utils/debounce.js'
+  import {itemListenerMixin} from 'common/utils/mixin.js'
+  // import {debounce} from 'common/utils/debounce.js'
 
   export default {
     name: "Home",
@@ -44,6 +45,7 @@
       Scroll,
       BackTop
     },
+    mixins:[itemListenerMixin],
     data() {
       return {
         banners: [],
@@ -56,7 +58,8 @@
         currentType: 'pop',
         isShowBackTop: false,
         topOffsetTop: 0,
-        saveY: 0
+        saveY: 0,
+        itemListner: null
       }
     },
     computed: {
@@ -80,12 +83,14 @@
     },
     deactivated(){
       this.saveY = this.$refs.scroll.scroll.y
+      this.$bus.$off('imageLoaded', this.itemListner)
     },
     mounted(){
-      const refresh = debounce(this.$refs.scroll.refresh, 500)
-      this.$bus.$on('imageLoaded',() =>{
-        refresh()
-      })
+      // const refresh = debounce(this.$refs.scroll.refresh, 500)
+      // this.itemListner = () =>{
+      //   refresh()
+      // }
+      // this.$bus.$on('imageLoaded',this.itemListner)
     },
     methods: {
       tabClick(index) {

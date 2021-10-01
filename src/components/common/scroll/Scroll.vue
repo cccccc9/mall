@@ -23,8 +23,7 @@
     },
     data() {
       return {
-        scroll: null,
-        message: '哈哈哈'
+        scroll: null
       }
     },
     mounted() {
