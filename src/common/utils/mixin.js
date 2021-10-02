@@ -7,6 +7,6 @@ export const itemListenerMixin = {
       refresh()
     }
     this.$bus.$on('imageLoaded',this.itemListner)
-    console.log("?")
+    // console.log("?")
   }
 }

@@ -1,15 +1,17 @@
 <template>
   <div id='detail'>
-    <detail-nav-bar class="detail-nav"/>
-    <scroll class="content" ref="scroll">
-      <detail-swiper :top-images="topImages" />
+    <detail-nav-bar class="detail-nav" @titleIndex="itemClick" ref="detailNav"/>
+    <scroll class="contents" ref="scroll" :probe-type=3 @scroll="contentScroll">
+      <detail-swiper :top-images="topImages"/>
       <detail-base-info :goods="goods"/>
       <detail-shop-info :shop="shop"/>
       <detail-goods-info :detail-info="detailInfo" @imageLoad="imageLoad"/>
-      <detail-param-info :param-info="itemParams"/>
-      <detail-comment-info :comment-info="commentInfo"/>
-      <goods-list :goods="recommend"></goods-list>
+      <detail-param-info ref="params" :param-info="itemParams"/>
+      <detail-comment-info ref="comment" :comment-info="commentInfo"/>
+      <goods-list ref="recommend" :goods="recommend"></goods-list>
     </scroll>
+    <back-top class="back" @click.native="backClick" v-show="isShowBackTop"/>
+    <detail-bottom-bar @addCart="addCart"/>
   </div>
 </template>
  
@@ -21,12 +23,14 @@
   import DetailGoodsInfo from './childComps/DetailGoodsInfo.vue'
   import DetailParamInfo from './childComps/DetailParamInfo.vue'
   import DetailCommentInfo from './childComps/DetailCommentInfo.vue'
+  import DetailBottomBar from './childComps/DetailBottomBar.vue'
   import GoodsList from 'components/content/goods/GoodsList.vue'
+  import BackTop from 'components/content/backTop/BackTop.vue'
 
 
   import Scroll from 'components/common/scroll/Scroll.vue'
 
-  // import {debounce} from 'common/utils/debounce.js';
+  import {debounce} from 'common/utils/debounce.js';
 
   import {itemListenerMixin} from 'common/utils/mixin.js'
   import {getDetail, getRecommend, Goods, Shop, GoodsParam} from 'network/detail.js'
@@ -44,7 +48,11 @@
         itemParams:{},
         commentInfo:{},
         recommend:[],
-        itemListner:null
+        itemListner:null,
+        themeTopY:[],
+        isShowBackTop: false,
+        getThemeTopY:null,
+        currentIndex: 0
       }
     },
     components: {
@@ -56,6 +64,8 @@
       DetailGoodsInfo,
       DetailParamInfo,
       DetailCommentInfo,
+      DetailBottomBar,
+      BackTop,
       GoodsList
     },
     created(){
@@ -72,11 +82,28 @@
         if(data.rate.cRate !== 0){
           this.commentInfo = data.rate.list[0];
         }
+        this.$nextTick(()=>{
+          // this.themeTopY.splice(0);
+          // this.themeTopY.push(0);
+          // this.themeTopY.push(this.$refs.params.$el.offsetTop);
+          // this.themeTopY.push(this.$refs.comment.$el.offsetTop);
+          // this.themeTopY.push(this.$refs.recommend.$el.offsetTop);
+          // console.log(this.themeTopY)
+        })
       })
       // console.log(this.topImages)
       getRecommend().then(res=>{
         this.recommend.push(...res.data.list);
       })
+
+      this.getThemeTopY = debounce(()=>{
+        this.themeTopY.splice(0);
+        this.themeTopY.push(0);
+        this.themeTopY.push(this.$refs.params.$el.offsetTop);
+        this.themeTopY.push(this.$refs.comment.$el.offsetTop);
+        this.themeTopY.push(this.$refs.recommend.$el.offsetTop);
+        console.log(this.themeTopY)  
+      },100)
     },
     mounted(){
       // const refresh = debounce(this.$refs.scroll.refresh, 500)
@@ -103,10 +130,48 @@
       //   console.log("haha")
       // }
       imageLoad(){
-        console.log(this)
+        // console.log(this)
 
         this.$refs.scroll.refresh()
         // this.$children[1].refresh()
+        this.getThemeTopY()
+      },
+      itemClick(index){
+        this.$refs.scroll.scrollTo(0, -this.themeTopY[index],0);
+      },
+      backClick() {
+        this.$refs.scroll.scrollTo(0, 0)
+      },
+      contentScroll(position){
+        this.isShowBackTop = (-position.y) > 1000
+        const y = -position.y;
+        for(let i = 0;i<this.themeTopY.length-1;i++){
+          if(y>this.themeTopY[i]){
+            if(y<this.themeTopY[i+1]){
+              //属于第i个区间
+              // console.log(i)
+              this.$refs.detailNav.currentIndex = i;
+            }
+            else{
+              //属于第i+1个区间
+              // console.log(i+1)
+              this.$refs.detailNav.currentIndex = i+1;
+            }
+          }
+        }
+      },
+      addCart(){
+        // console.log('kk');
+        const prodct = {};
+        prodct.image = this.topImages[0];
+        prodct.title = this.goods.title;
+        prodct.desc = this.goods.desc;
+        prodct.price = this.goods.realPrice;
+        prodct.iid = this.iid;
+        prodct.count = null;
+        // console.log(prodct)
+        // this.$store.cartList.push(prodct)
+        this.$store.dispatch('addCart', prodct)
       }
     }
   }
@@ -124,8 +189,11 @@
     z-index: 9;
     background-color: #fff;
   }
-  .content{
+  .contents{
     height: calc(100% - 44px);
     overflow: hidden;
   }
+  /* .back{
+    z-index: 10;
+  } */
 </style>
