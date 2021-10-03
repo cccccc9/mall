@@ -12,6 +12,7 @@
     </scroll>
     <back-top class="back" @click.native="backClick" v-show="isShowBackTop"/>
     <detail-bottom-bar @addCart="addCart"/>
+    <toast :message="message" :show="show" />
   </div>
 </template>
  
@@ -26,6 +27,7 @@
   import DetailBottomBar from './childComps/DetailBottomBar.vue'
   import GoodsList from 'components/content/goods/GoodsList.vue'
   import BackTop from 'components/content/backTop/BackTop.vue'
+  import Toast from 'components/common/toast/Toast.vue'
 
 
   import Scroll from 'components/common/scroll/Scroll.vue'
@@ -34,6 +36,7 @@
 
   import {itemListenerMixin} from 'common/utils/mixin.js'
   import {getDetail, getRecommend, Goods, Shop, GoodsParam} from 'network/detail.js'
+  import {mapActions} from 'vuex'
 
   export default {
     name: "detail",
@@ -52,7 +55,9 @@
         themeTopY:[],
         isShowBackTop: false,
         getThemeTopY:null,
-        currentIndex: 0
+        currentIndex: 0,
+        message: "",
+        show: false
       }
     },
     components: {
@@ -66,7 +71,8 @@
       DetailCommentInfo,
       DetailBottomBar,
       BackTop,
-      GoodsList
+      GoodsList,
+      Toast
     },
     created(){
       this.iid = this.$route.params.iid
@@ -129,6 +135,9 @@
       // test(){
       //   console.log("haha")
       // }
+      ...mapActions({
+        add: 'addCart'
+      }),
       imageLoad(){
         // console.log(this)
 
@@ -171,7 +180,19 @@
         prodct.count = null;
         // console.log(prodct)
         // this.$store.cartList.push(prodct)
-        this.$store.dispatch('addCart', prodct)
+        this.add(prodct).then((res) => {
+          console.log(res);
+          // (this.show = true),
+          //   (this.message = res),
+          this.show = true;
+          this.message = res;
+            setTimeout(() => {
+              this.show = false;
+              this.message = "";
+            }, 900);
+          // this.$toast.display(res, 20000);
+          // console.log(this.$toast);
+        });
       }
     }
   }

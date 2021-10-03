@@ -20,6 +20,9 @@
 
 <style>
   @import "assets/css/base.css";
+  #app{
+    position: relative;
+  } 
 </style>
 
 
