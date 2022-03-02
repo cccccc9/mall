@@ -45,6 +45,6 @@
     z-index: 10;
   }
   .cart{
-    height: 84.5vh;
+    height: 86.5vh;
   }
 </style>

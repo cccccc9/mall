@@ -1,8 +1,20 @@
 <template>
   <div>
     <scroll class="content">
-      <ul v-show="isShow" @click="liClick">别点，没写</ul>
-      <ul v-show="!isShow">我都说别点我急了手机电脑我全砸了别人一说我急了我好像就真的恼羞成怒了仿佛他看穿了在网络背后的我这种感觉我很不舒服被看穿了被看的死死的我不想再故作坚强了玩心态我输的死死的一切都是冰冷的恨意,一想到这我就手脚冰凉遍体生寒后背发凉宛若人间地狱的恶魔,气的我蹲在地下车库哭了三小时,仿佛处在真空中窒息两分钟,忍不住哭了,是真的一下子就涌出来了,很委屈很不知所措很无力很愤怒!我不发疯我说什么？你以为我像你们一样都读过书?都上过学？都知道字怎么打？我从小自闭症，现在一句完整的话都说不完，看到大家都能打字，我也羡慕，所以只能发疯大家说过的话，证明我也会说话，连发疯你都要有意见？你不如把我杀了</ul>
+      <div class="profile-head">
+        <div class="profile-pic">
+          <img src="~assets/img/category/0.jpg" alt="">
+        </div>
+        <div class="profile-zone">
+          <span>个人空间 &gt</span>
+        </div>
+      </div>
+      <div class="profile-bottom">
+        <div class="bottom-item" v-for="item in selections">
+          <span class="item-left">{{item}}</span>
+          <span style="float:right;margin-right:30px;color:black">&gt</span>
+        </div>
+      </div>
     </scroll>
   </div>
 </template>
@@ -12,21 +24,16 @@
 
   export default {
     name: "Profile",
-    data(){
-      return {
-        isShow:{
-          type: Boolean,
-          default: true
-        }
-      }
-    },
-    methods:{
-      liClick(){
-        this.isShow = false;
-      }
-    },
     components: {
       Scroll
+    },
+    data() {
+      return {
+        selections: ['支付', '收货地址', '我的客服', '设置', '退出登录']
+      }
+    },
+    methods: {
+
     }
   }
 </script>
@@ -37,5 +44,54 @@
     background-color: white;
     font-size: 25px;
     overflow: hidden;
+  }
+
+  .profile-head {
+    height: 20vh;
+    display: table;
+    /* border-radius: 5px 5px 5px 5px; */
+    width: 100%;
+    margin-top: 20px;
+    background: rgb(240, 240, 240);
+  }
+
+  .profile-pic {
+    text-align: center;
+    vertical-align: middle;
+    display: table-cell;
+    width: 200px;
+  }
+
+  .profile-pic img {
+    height: 80px;
+    width: 80px;
+    border-radius: 50%;
+  }
+
+  .profile-zone {
+    color: grey;
+    text-align: right;
+    padding-right: 60px;
+    font-size: 23px;
+    display: table-cell;
+    vertical-align: middle;
+  }
+
+  .profile-bottom {
+    height: 60vh;
+    background: rgb(240, 240, 240);
+    margin-top: 20px;
+  }
+
+  .bottom-item {
+    height: 50px;
+    line-height: 50px;
+    border-bottom: 1px solid grey;
+  }
+
+  .bottom-item .item-left {
+    font-size: 18px;
+    margin-left: 20px;
+    color: black;
   }
 </style>
